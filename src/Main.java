@@ -1,42 +1,15 @@
 void main() throws IOException {
-    LocalDateTime start = LocalDateTime.now();
+    var start = LocalDateTime.now();
 
     var words = getWordsFromFile("src/txt/harry.txt");
 
-    Arrays.sort(words);
+    var distincts = getDistinctWords(words);
+    var frequencies = getWordOrderedFrequencies(distincts, words);
+    var wordsWithFreq = getSortedWordsWithFrequency(distincts, frequencies);
 
-    String distinctString = " ";
+    printWordsWithFrequencies(wordsWithFreq, 30);
 
-    for (int i = 0; i < words.length ; i++) {
-        if (!distinctString.contains(words[i])){
-            distinctString+= words[i] + " ";
-        }
-    }
-
-    String[] distincts = distinctString.split(" ");
-    int[] freq = new int[distincts.length];
-
-    for (int i = 0; i < distincts.length ; i++) {
-        int count = 0;
-        for (int j = 0; j < words.length ; j++) {
-            if (distincts[i].equals(words[j])) {
-                count++;
-            }
-        }
-        freq[i] = count;
-    }
-
-    for (int i = 0; i < distincts.length ; i++) { // 5 000
-        distincts[i] += " " + freq[i];
-    }
-
-    Arrays.sort(distincts, Comparator.comparing(str
-                -> Integer.valueOf(str.replaceAll("[^0-9]", ""))));
-
-    for (int i = 0; i < 30; i++) {
-        System.out.println(distincts[distincts.length - 1 - i]);
-    }
-    LocalDateTime finish = LocalDateTime.now();
+    var finish = LocalDateTime.now();
 
     System.out.println("------");
     System.out.println(ChronoUnit.MILLIS.between(start, finish));
@@ -48,4 +21,53 @@ String[] getWordsFromFile(String fileName) throws IOException {
         .replaceAll("[^A-Za-z ]"," ")
         .toLowerCase(Locale.ROOT)
         .split(" +");
+}
+
+String[] getDistinctWords(String[] words) {
+    Arrays.sort(words);
+
+    var distinctString = " ";
+
+    for (var word : words) {
+        if (!distinctString.contains(word)){
+            distinctString+= word + " ";
+        }
+    }
+
+    return distinctString.split(" ");
+}
+
+int[] getWordOrderedFrequencies(String[] distincts, String[] words) {
+    var freq = new int[distincts.length];
+
+    for (int i = 0; i < distincts.length ; i++) {
+        int count = 0;
+
+        for (var word : words) {
+            if (distincts[i].equals(word)) {
+                count++;
+            }
+        }
+        freq[i] = count;
+    }
+
+    return freq;
+}
+
+String[] getSortedWordsWithFrequency(String[] distincts, int[] freq) {
+    var wordsWithFreq = new String[distincts.length];
+
+    for (int i = 0; i < distincts.length ; i++) {
+        wordsWithFreq[i] = distincts[i] + " " + freq[i];
+    }
+
+    Arrays.sort(wordsWithFreq, Comparator.comparing(str -> Integer.valueOf(str.replaceAll("[^0-9]", ""))));
+
+    return wordsWithFreq;
+}
+
+void printWordsWithFrequencies(String[] wordsWithFreq, int limit) {
+    for (int i = 0; i < limit; i++) {
+        System.out.println(wordsWithFreq[wordsWithFreq.length - i - 1]);
+    }
 }
