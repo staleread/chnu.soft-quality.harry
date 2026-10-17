@@ -7,7 +7,7 @@ void main() throws IOException {
     var frequencies = getWordOrderedFrequencies(distincts, words);
     var wordsWithFreq = getSortedWordsWithFrequency(distincts, frequencies);
 
-    printWordsWithFrequencies(wordsWithFreq, 30);
+    printWordsWithTopFrequencies(wordsWithFreq, 30);
 
     var finish = LocalDateTime.now();
 
@@ -66,7 +66,7 @@ String[] getSortedWordsWithFrequency(String[] distincts, int[] freq) {
     return wordsWithFreq;
 }
 
-void printWordsWithFrequencies(String[] wordsWithFreq, int limit) {
+void printWordsWithTopFrequencies(String[] wordsWithFreq, int limit) {
     for (int i = 0; i < limit; i++) {
         System.out.println(wordsWithFreq[wordsWithFreq.length - i - 1]);
     }
