@@ -1,12 +1,7 @@
 void main() throws IOException {
     LocalDateTime start = LocalDateTime.now();
 
-    String content = new String(Files.readAllBytes(Paths.get("src/txt/harry.txt")));
-    int size = content.length();
-    content = content.replaceAll("[^A-Za-z ]"," ").toLowerCase(Locale.ROOT);
-
-    String[] words = content.split(" +"); // 400 000
-
+    var words = getWordsFromFile("src/txt/harry.txt");
 
     Arrays.sort(words);
 
@@ -45,4 +40,12 @@ void main() throws IOException {
 
     System.out.println("------");
     System.out.println(ChronoUnit.MILLIS.between(start, finish));
+}
+
+String[] getWordsFromFile(String fileName) throws IOException {
+    return Files
+        .readString(Path.of(fileName), StandardCharsets.UTF_8)
+        .replaceAll("[^A-Za-z ]"," ")
+        .toLowerCase(Locale.ROOT)
+        .split(" +");
 }
