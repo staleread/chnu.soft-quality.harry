@@ -3,9 +3,8 @@ void main() throws IOException {
 
     var words = getWordsFromFile("src/txt/harry.txt");
 
-    var distincts = getDistinctWords(words);
-    var frequencies = getWordOrderedFrequencies(distincts, words);
-    var wordsWithFreq = getSortedWordsWithFrequency(distincts, frequencies);
+    var frequencies = getWordFrequencies(words);
+    var wordsWithFreq = getSortedWordsWithFrequency(frequencies);
 
     printWordsWithTopFrequencies(wordsWithFreq, 30);
 
@@ -23,51 +22,28 @@ String[] getWordsFromFile(String fileName) throws IOException {
         .split(" +");
 }
 
-String[] getDistinctWords(String[] words) {
-    Arrays.sort(words);
-
-    var distinctString = " ";
+Map<String, Integer> getWordFrequencies(String[] words) {
+    var freq = new HashMap<String, Integer>();
 
     for (var word : words) {
-        if (!distinctString.contains(" " + word + " ")){
-            distinctString+= word + " ";
-        }
-    }
-
-    return distinctString.split(" ");
-}
-
-int[] getWordOrderedFrequencies(String[] distincts, String[] words) {
-    var freq = new int[distincts.length];
-
-    for (int i = 0; i < distincts.length ; i++) {
-        int count = 0;
-
-        for (var word : words) {
-            if (distincts[i].equals(word)) {
-                count++;
-            }
-        }
-        freq[i] = count;
+        freq.merge(word, 1, Integer::sum);
     }
 
     return freq;
 }
 
-String[] getSortedWordsWithFrequency(String[] distincts, int[] freq) {
-    var wordsWithFreq = new String[distincts.length];
+List<Map.Entry<String, Integer>> getSortedWordsWithFrequency(Map<String, Integer> freq) {
+    var wordsWithFreq = new ArrayList<>(freq.entrySet());
 
-    for (int i = 0; i < distincts.length ; i++) {
-        wordsWithFreq[i] = distincts[i] + " " + freq[i];
-    }
-
-    Arrays.sort(wordsWithFreq, Comparator.comparing(str -> Integer.valueOf(str.replaceAll("[^0-9]", ""))));
+    wordsWithFreq.sort(
+        Map.Entry.<String, Integer>comparingByValue().reversed()
+            .thenComparing(Map.Entry.<String, Integer>comparingByKey().reversed()));
 
     return wordsWithFreq;
 }
 
-void printWordsWithTopFrequencies(String[] wordsWithFreq, int limit) {
-    for (int i = 0; i < limit; i++) {
-        System.out.println(wordsWithFreq[wordsWithFreq.length - i - 1]);
+void printWordsWithTopFrequencies(List<Map.Entry<String, Integer>> wordsWithFreq, int limit) {
+    for (var entry : wordsWithFreq.subList(0, limit)) {
+        System.out.println(entry.getKey() + " " + entry.getValue());
     }
 }
