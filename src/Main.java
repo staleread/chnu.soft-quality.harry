@@ -1,9 +1,7 @@
 void main() throws IOException {
     var start = LocalDateTime.now();
 
-    var words = getWordsFromFile("src/txt/harry.txt");
-
-    var frequencies = getWordFrequencies(words);
+    var frequencies = getWordFrequencies("src/txt/harry.txt");
     var wordsWithFreq = getSortedWordsWithFrequency(frequencies);
 
     printWordsWithTopFrequencies(wordsWithFreq, 30);
@@ -14,19 +12,35 @@ void main() throws IOException {
     System.out.println(ChronoUnit.MILLIS.between(start, finish));
 }
 
-String[] getWordsFromFile(String fileName) throws IOException {
-    return Files
-        .readString(Path.of(fileName), StandardCharsets.UTF_8)
-        .replaceAll("[^A-Za-z ]"," ")
-        .toLowerCase(Locale.ROOT)
-        .split(" +");
-}
-
-Map<String, Integer> getWordFrequencies(String[] words) {
+Map<String, Integer> getWordFrequencies(String fileName) throws IOException {
     var freq = new HashMap<String, Integer>();
+    var buffer = new byte[64 * 1024];
+    var word = new byte[64];
+    var wordLength = 0;
 
-    for (var word : words) {
-        freq.merge(word, 1, Integer::sum);
+    try (var in = new FileInputStream(fileName)) {
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            for (int i = 0; i < read; i++) {
+                var b = buffer[i];
+                if (b >= 'A' && b <= 'Z') {
+                    b += 'a' - 'A';
+                }
+                if (b >= 'a' && b <= 'z') {
+                    if (wordLength == word.length) {
+                        word = Arrays.copyOf(word, wordLength * 2);
+                    }
+                    word[wordLength++] = b;
+                } else if (wordLength > 0) {
+                    freq.merge(new String(word, 0, wordLength, StandardCharsets.ISO_8859_1), 1, Integer::sum);
+                    wordLength = 0;
+                }
+            }
+        }
+    }
+
+    if (wordLength > 0) {
+        freq.merge(new String(word, 0, wordLength, StandardCharsets.ISO_8859_1), 1, Integer::sum);
     }
 
     return freq;
