@@ -29,7 +29,7 @@ String[] getDistinctWords(String[] words) {
     var distinctString = " ";
 
     for (var word : words) {
-        if (!distinctString.contains(word)){
+        if (!distinctString.contains(" " + word + " ")){
             distinctString+= word + " ";
         }
     }
